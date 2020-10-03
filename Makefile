@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: thervieu <marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: user42 <user42@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/07 19:29:40 by thervieu          #+#    #+#              #
-#    Updated: 2020/02/08 21:26:53 by thervieu         ###   ########.fr        #
+#    Updated: 2020/10/03 18:42:01 by user42           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,8 @@ FLAGS 		=	-Wall -Werror -Wextra
 
 TEST		=	test
 
+SRC_DIR		= 	srcs/
+
 SRCS		=	ft_strlen.s \
 				ft_strcmp.s \
 				ft_strcpy.s \
@@ -27,12 +29,12 @@ SRCS		=	ft_strlen.s \
 				ft_read.s \
 				ft_strdup.s
 
-OBJS		=	$(SRCS:.s=.o)
+OBJS		=	$(addprefix $(SRC_DIR), $(SRCS:.s=.o))
 
 TEST		=	test
 
 %.o: %.s
-		$(NA) $(NA_FLAGS) $<
+		$(NA) $(NA_FLAGS) -o $@ $<
 
 all: $(NAME)
 
@@ -40,8 +42,7 @@ $(NAME): $(OBJS)
 				ar rcs $(NAME) $(OBJS)
 
 test:	$(NAME)
-		gcc $(FLAGS) $(NAME) -o $(TEST) main.c
-# could use options -L. -lasm instead of $(NAME)
+		gcc $(FLAGS) main.c $(NAME) -o test
 		./$(TEST) < Makefile
 
 clean:
@@ -53,4 +54,3 @@ fclean: clean
 	@/bin/rm -f $(NAME) $(TEST)
 
 re: fclean all
-

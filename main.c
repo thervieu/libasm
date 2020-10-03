@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thervieu <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/08 21:29:21 by thervieu          #+#    #+#             */
-/*   Updated: 2020/02/08 21:29:23 by thervieu         ###   ########.fr       */
+/*   Updated: 2020/10/03 16:40:40 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 
 // Function prototypes
 
@@ -41,7 +42,9 @@ int		main(void)
 	char	buffer[100];
 	char	*tmp;
 	char	*tmp2;
+	char 	*null_char;
 
+	null_char = NULL;
 	r = 0;
 	i = 0;
 	while (i < 100)
@@ -49,23 +52,23 @@ int		main(void)
 
 	printf("____________________Begin____________________\n\n");
 	printf("_____strlen_____\n\n");
-	STRLEN("")
-	STRLEN("toto")
-	STRLEN("totototo")
-	STRLEN("0123456789abcdef")
-	STRLEN("42")
-	STRLEN("1")
+	STRLEN("");
+	STRLEN("toto");
+	STRLEN("totototo");
+	STRLEN("0123456789abcdef");
+	STRLEN("42");
+	STRLEN("1");
 	printf("\n");
 
 	printf("\n_____strcmp_____\n\n");
-	STRCMP("", "")
-	STRCMP("toto", "toto")
-	STRCMP("", "toto")
-	STRCMP("toto", "")
-	STRCMP("toto", "totobar")
-	printf("'%s':'%s' -> Me = %d\n", "TOTO", NULL, ft_strcmp("TOTO", NULL));
-	printf("'%s':'%s' -> Me = %d\n", NULL, "TOTO", ft_strcmp(NULL, "TOTO"));
-	printf("'%s':'%s' -> Me = %d\n", NULL, NULL, ft_strcmp(NULL, NULL));
+	STRCMP("", "");
+	STRCMP("toto", "toto");
+	STRCMP("", "toto");
+	STRCMP("toto", "");
+	STRCMP("toto", "totobar");
+	printf("'%s':'%s' -> Me = %d\n", "TOTO", null_char, ft_strcmp("TOTO", null_char));
+	printf("'%s':'%s' -> Me = %d\n", null_char, "TOTO", ft_strcmp(null_char, "TOTO"));
+	printf("'%s':'%s' -> Me = %d\n", null_char, null_char, ft_strcmp(null_char, null_char));
 
 	printf("\n_____strcpy_____\n\n");
 	printf("'toto' -> '%s'\n", ft_strcpy(buffer, "toto"));
@@ -75,44 +78,44 @@ int		main(void)
 	printf("\n");
 
 	printf("\n_____write_____\n\n");
-	WRITE("toto", 4L)
-	WRITE("totototo", 4L)
-	WRITE("totototo", 8L)
-	WRITE("toto", 2L)
+	WRITE("toto", 4L);
+	WRITE("totototo", 4L);
+	WRITE("totototo", 8L);
+	WRITE("toto", 2L);
 	printf("\n");
 
 	printf("\n_____read (Makefile)_____\n\n");
-	READ(buffer, 50)
+	READ(buffer, 50);
 	i = 0;
 	while (i < 100)
 		buffer[i++] = 0;
-	READ(buffer, 25)
+	READ(buffer, 25);
 	i = 0;
 	while (i < 100)
 		buffer[i++] = 0;
-	READ(buffer, 4)
+	READ(buffer, 4);
 	i = 0;
 	while (i < 100)
 		buffer[i++] = 0;
-	READ(buffer, 26)
+	READ(buffer, 26);
 	i = 0;
 	while (i < 100)
 		buffer[i++] = 0;
-	READ(buffer, 14)
+	READ(buffer, 14);
 	i = 0;
 	while (i < 100)
 		buffer[i++] = 0;
-	READ(buffer, 0)
+	READ(buffer, 0);
 	printf("\n");
 
 	printf("\n_____ft_strdup_____\n\n");
 	tmp2 = ft_strdup("toto");
-	DUP(tmp2)
+	DUP(tmp2);
 	free(tmp2);
-	DUP("totobar")
-	DUP("long message")
-	DUP("")
-	DUP(NULL)
+	DUP("totobar");
+	DUP("long message");
+	DUP("");
+	DUP(null_char);
 	printf("\n\n____________________all done :)____________________\n\n");
 	return (0);
 }
