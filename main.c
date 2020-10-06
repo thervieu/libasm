@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/09 12:13:54 by gozsertt          #+#    #+#             */
-/*   Updated: 2020/10/06 22:26:29 by user42           ###   ########.fr       */
+/*   Updated: 2020/10/06 23:21:40 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,15 +114,9 @@ static void		read_test_openfd(char *s) {
 	lseek(fd, 0, SEEK_SET);
 	errno = 0; ret2 = read(fd, buf2, 1000);
 	printf("ret2 = %d, bufd = |%s|, errno %d |%s|\n", ret2, buf2, errno, strerror(errno));
-	printf("AAAA\n");
 	lseek(fd, 0, SEEK_SET);
-	printf("AAAA\n");
-	printf("CCCC\n");
 	errno = 0; ret1 = ft_read(fd, buf1, 1000);
-	printf("AAAA\n");
-	printf("BBBB\n");
 	printf("ret1 = %d, buf1 = |%s|, errno %d |%s|\n", ret1, buf1, errno, strerror(errno));
-	printf("BBBB\n");
 	if (ret1 == ret2) {
 		if (!(strcmp(buf1, buf2))) {
 			printf(GREEN"SUCCESS\n"RESET);
