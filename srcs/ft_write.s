@@ -1,20 +1,19 @@
-    default rel
-    global  _ft_write
-    extern  ___error
-
     section .text
 
-_ft_write:
-    mov rax, 0x2000004  ; write
+    extern  __errno_location
+    global  ft_write
+
+ft_write:
+    mov     rax, 1  ; write
     syscall             ; call system rax = write
-    jc _error            ; if error jump to error
+    cmp     rax, 0
+    jl      _error            ; if error jump to error
     ret                 ; else return
 
 _error:
-    mov rdx, rax        ; save errorvalue
-    push rdx            ; push err
-    call ___error       ; call errno
-    pop rdx
-    mov [rax], rdx
-    mov rax, -1
-    ret
+    neg		rax			; set errcode to positive
+	mov		rdi, rax		; store errcode in %rdi
+	call	__errno_location wrt ..plt	; get errno location
+	mov		[rax], rdi		; initialize errno with errcode
+	mov		rax, -1			; return -1
+	ret

@@ -5,117 +5,254 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/02/08 21:29:21 by thervieu          #+#    #+#             */
-/*   Updated: 2020/10/03 16:40:40 by user42           ###   ########.fr       */
+/*   Created: 2020/08/09 12:13:54 by gozsertt          #+#    #+#             */
+/*   Updated: 2020/10/06 22:26:29 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
+#include "libasm.h"
 #include <stdio.h>
-#include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/uio.h>
 
-// Function prototypes
+#define RED "\x1b[31m"
+#define GREEN "\x1b[32m"
+#define CYAN "\x1b[36m"
+#define RESET "\x1b[0m"
 
-int		ft_strlen(char const *str);
-int		ft_strcmp(char const *s1, char const *s2);
-char	*ft_strcpy(char *dst, char const *src);
-ssize_t	ft_write(int fd, void const *buf, size_t nbyte);
-ssize_t	ft_read(int fd, void *buf, size_t nbyte);
-char	*ft_strdup(char const *s1);
+static void		strlen_test(char *s) {
+	int yours = ft_strlen(s); int std = strlen(s);
+	printf("Testing strlen(%s)\n", s);
+	printf("yours = %d, std = %d\n", yours, std);
+	if (yours != std)
+		printf(RED"ERROR\n"RESET);
+	else
+		printf(GREEN"SUCCESS\n"RESET);
+}
 
-// Useful macros
+static void		strcpy_test(char *s) {
+	char buf1[10000] = {0}; char buf2[10000] = {0};
+	char *ret1 = ft_strcpy(buf1, s); char *ret2 = ft_strcpy(buf2, s);
+	printf("\tbuf1 = |%s|\n\tbuf2 = |%s|\n", buf1, buf2);
+	if (strcmp(buf1, buf2) != 0)
+		printf(RED"ERROR\n"RESET);
+	else
+		printf(GREEN"SUCCESS\n"RESET);
+}
 
-# define STRLEN(tmp)		printf("'%s' -> True = %d && Me = %d\n", tmp, (int)strlen(tmp), ft_strlen(tmp));
-# define STRCMP(a, b)		printf("'%s' && '%s' -> True = %d && Me = %d\n", a, b, strcmp(a, b), ft_strcmp(a, b));
-# define WRITE(str, nb)		printf(" && %ld <-'%s' && %ld\n", ft_write(STDOUT_FILENO, str, nb), str, nb);
-# define READ(buffer, x)	r = ft_read(STDIN_FILENO, buffer, x); printf("%d -> '%s' && %ld\n", x,  buffer, r);
-# define DUP(str)			tmp = ft_strdup(str); printf("'%s' -> '%s'\n", str, tmp); free(tmp); tmp = NULL;
+static void		strcmp_test(char *s1, char *s2) {
+	int ret2 = strcmp(s1, s2); int ret1 = ft_strcmp(s1, s2); 
+	printf("comparing |%s| and |%s|\n", s1, s2);
+	printf("ret1 = %d, ret2 = %d\n", ret1, ret2);
+	if ((ret1 < 0 && ret2 < 0) || (!ret1 && !ret2 ) || (ret1 > 0 && ret2 > 0))
+		printf(GREEN"SUCCESS\n"RESET);
+	else
+		printf(RED"ERROR\n"RESET);
+}
 
-// Main
+static void	strcmp_test_back_to_back(char *s1, char *s2, char *s3, char *s4) {
+	int ret2 = strcmp(s1, s2); int ret1 = ft_strcmp(s1, s2); 
+	printf("comparing |%s| and |%s|\n", s1, s2);
+	printf("ret1 = %d, ret2 = %d\n", ret1, ret2);
+	if ((ret1 < 0 && ret2 < 0) || (!ret1 && !ret2 ) || (ret1 > 0 && ret2 > 0))
+		printf(GREEN"SUCCESS\n"RESET);
+	else
+		printf(RED"ERROR\n"RESET);
+	int ret3 = ft_strcmp(s3, s4); int ret4 = strcmp(s3, s4); 
+	printf("comparing |%s| and |%s|\n", s3, s4);
+	printf("ret3 = %d, ret4 = %d\n", ret3, ret4);
+	if ((ret3 < 0 && ret4 < 0) || (!ret3 && !ret4 ) || (ret3 > 0 && ret4 > 0))
+		printf(GREEN"SUCCESS\n"RESET);
+	else
+		printf(RED"ERROR\n"RESET);
+}
 
-int		main(void)
+static void		write_test(int fd, char *s) {
+	char	buf1[4096] = {0}; char buf2[4096] = {0}; int ret1, ret2;
+	printf("testing fd = %d, s = |%s|\n", fd, s);
+	if (fd > 2) {
+		int fd1 = open("testfile_write_1", O_CREAT | O_TRUNC | O_RDWR, 0777);
+		int fd2 = open("testfile_write_2", O_CREAT | O_TRUNC | O_RDWR, 0777);
+		ret1 = ft_write(fd1, s, strlen(s));
+		read(fd1, buf1, strlen(s) + 1);
+		ret2 = write(fd2, s, strlen(s));
+		read(fd2, buf2, strlen(s) + 1);
+	} else if (fd < 0) {
+		errno = 0;
+		ret1 = ft_write(fd, s, strlen(s) + 1);
+		printf("errno = %d, strerror = |%s|\n", errno, strerror(errno));
+		errno = 0;
+		ret2 = write(fd, s, strlen(s) + 1);
+		printf("errno = %d, strerror = |%s|\n", errno, strerror(errno));
+	} else {
+		ret1 = ft_write(fd, s, strlen(s) + 1);
+		ret2 = write(fd, s, strlen(s) + 1);
+	}
+	printf("ret1 = %d, wrote |%s|, ret2 = %d, wrote |%s|\n",
+		ret1, buf1, ret2, buf2);
+
+	if (ret1 == ret2) {
+		printf(GREEN"ret value OK, "RESET);
+		if (strcmp(buf1, buf2) == 0) {
+			printf(GREEN"contents OK, SUCCESS\n"RESET);
+		} else {
+			printf(RED"contents not the same, ERROR\n"RESET);
+		}
+	} else { printf(RED"Ret values not OK, ERROR\n"RESET); }
+}
+
+static void		read_test_openfd(char *s) {
+	char buf1[4096] = {0}; char buf2[4096] = {0};
+	int fd = open("readfile", O_CREAT | O_RDWR | O_TRUNC, 0777);
+	write(fd, s, strlen(s));
+	printf("testing read on fd = %d, contents = |%s|\n", fd, s);
+	int ret1, ret2;
+	lseek(fd, 0, SEEK_SET);
+	errno = 0; ret2 = read(fd, buf2, 1000);
+	printf("ret2 = %d, bufd = |%s|, errno %d |%s|\n", ret2, buf2, errno, strerror(errno));
+	printf("AAAA\n");
+	lseek(fd, 0, SEEK_SET);
+	printf("AAAA\n");
+	printf("CCCC\n");
+	errno = 0; ret1 = ft_read(fd, buf1, 1000);
+	printf("AAAA\n");
+	printf("BBBB\n");
+	printf("ret1 = %d, buf1 = |%s|, errno %d |%s|\n", ret1, buf1, errno, strerror(errno));
+	printf("BBBB\n");
+	if (ret1 == ret2) {
+		if (!(strcmp(buf1, buf2))) {
+			printf(GREEN"SUCCESS\n"RESET);
+		} else {
+			printf(RED"buf1 != buf2, ERROR\n"RESET);
+		}
+	} else {
+		printf(RED"ret1 != ret2, ERROR\n"RESET);
+	}
+}
+
+static void		read_test_badfd(void) {
+	char buf1[4096] = {0}; char buf2[4096] = {0};
+	int ret1, ret2;
+	printf("testing read on badfd\n");
+	errno = 0; ret1 = ft_read(-1, buf1, 42);
+	printf("ret1 = %d, buf1 = |%s|, errno = %d, strerror = |%s|\n",
+			ret1, buf1, errno, strerror(errno));
+	errno = 0; ret2 = read(-1, buf2, 42);
+	printf("ret2 = %d, buf2 = |%s|, errno = %d, strerror = |%s|\n",
+			ret2, buf2, errno, strerror(errno));
+	if (ret1 == ret2) {
+		if (!(strcmp(buf1, buf2))) {
+			printf(GREEN"SUCCESS\n"RESET);
+		} else {
+			printf(RED"buf1 != buf2, ERROR\n"RESET);
+		}
+	} else {
+		printf(RED"ret1 != ret2, ERROR\n"RESET);
+	}
+}
+
+static void		read_test_stdin(void) {
+
+	char buf1[4096] = {0}; char buf2[4096] = {0};
+	printf("testing ft_read on stdin, please type something :\n");
+	int ret1, ret2;
+
+	errno = 0;
+	ret1 = ft_read(1, buf1, 1000);
+	printf("\nret1 = %d, buf1 = |%s|, errno = %d, strerror = |%s|\n",
+			ret1, buf1, errno, strerror(errno));
+
+	errno = 0;
+	printf("To compare with glibc read on stdin, please type it again :\n");
+	ret2 = read(1, buf2, 1000);
+	printf("\nret2 = %d, buf2 = |%s|, errno = %d, strerror = |%s|\n",
+			ret2, buf2, errno, strerror(errno));
+
+	if (ret1 == ret2) {
+		if (!(strcmp(buf1, buf2))) {
+			printf(GREEN"SUCCESS\n"RESET);
+		} else {
+			printf(RED"buf1 != buf2, ERROR\n"RESET);
+		}
+	} else {
+		printf(RED"ret1 != ret2, ERROR\n"RESET);
+	}
+}
+
+static void		strdup_test(char *s) {
+	char *s1, *s2;
+	errno = 0;
+	s1 = ft_strdup(s);
+	printf("s1 = |%s|, errno = %d |%s|\n", s1, errno, strerror(errno));
+	errno = 0;
+	s2 = strdup(s);
+	printf("s2 = |%s|, errno = %d |%s|\n", s2, errno, strerror(errno));
+	if (!strcmp(s1, s2))
+		printf(GREEN"SUCCESS\n"RESET);
+	else
+		printf(RED"ERROR\n"RESET);
+	free(s1); free(s2);
+}
+
+static void		strdup_heap_test(char *str) {
+	char *s1, *s2;
+	char *s = strdup(str);
+	errno = 0;
+	s1 = ft_strdup(s);
+	printf("s1 = |%s|, errno = %d |%s|\n", s1, errno, strerror(errno));
+	errno = 0;
+	s2 = strdup(s);
+	printf("s2 = |%s|, errno = %d |%s|\n", s2, errno, strerror(errno));
+	if (!strcmp(s1, s2))
+		printf(GREEN"SUCCESS\n"RESET);
+	else
+		printf(RED"ERROR\n"RESET);
+	free(s); free(s1); free(s2);
+}
+
+int main()
 {
-	int		i;
-	long	r;
-	char	buffer[100];
-	char	*tmp;
-	char	*tmp2;
-	char 	*null_char;
+	printf(CYAN"------------Testing strlen-----------\n"RESET);
+	strlen_test("");
+	strlen_test("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.");
+	strlen_test("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.");
 
-	null_char = NULL;
-	r = 0;
-	i = 0;
-	while (i < 100)
-		buffer[i++] = 0;
+	printf(CYAN"------------Testing strcpy-----------\n"RESET);
+	strcpy_test("");
+	strcpy_test("Lorem ipsum dolor sit amet, consectetur adipiscing elit");
+	strcpy_test("Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit");
+	strcpy_test("a");
 
-	printf("____________________Begin____________________\n\n");
-	printf("_____strlen_____\n\n");
-	STRLEN("");
-	STRLEN("toto");
-	STRLEN("totototo");
-	STRLEN("0123456789abcdef");
-	STRLEN("42");
-	STRLEN("1");
-	printf("\n");
+	printf(CYAN"------------Testing strcmp-----------\n"RESET);
+	strcmp_test("", "");
+	strcmp_test("", "hello_world");
+	strcmp_test("wonderful world", "");
+	strcmp_test("bonjour", "au revoir");
+	strcmp_test("ces strings sont identiques", "ces strings sont identiques");
+	strcmp_test_back_to_back("abcd", "abcd", "bonjour", "au revoir");
 
-	printf("\n_____strcmp_____\n\n");
-	STRCMP("", "");
-	STRCMP("toto", "toto");
-	STRCMP("", "toto");
-	STRCMP("toto", "");
-	STRCMP("toto", "totobar");
-	printf("'%s':'%s' -> Me = %d\n", "TOTO", null_char, ft_strcmp("TOTO", null_char));
-	printf("'%s':'%s' -> Me = %d\n", null_char, "TOTO", ft_strcmp(null_char, "TOTO"));
-	printf("'%s':'%s' -> Me = %d\n", null_char, null_char, ft_strcmp(null_char, null_char));
+	printf(CYAN"------------Testing write-----------\n"RESET);
+	write_test(fileno(stdout), "this goes to stdout");
+	write_test(-1, "this goes to badfd");
+	write_test(42, "this goes to open file fd");
 
-	printf("\n_____strcpy_____\n\n");
-	printf("'toto' -> '%s'\n", ft_strcpy(buffer, "toto"));
-	printf(""" -> %s\n", ft_strcpy(buffer, ""));
-	printf("'long message' -> %s\n", ft_strcpy(buffer, "long message"));
-	printf("NULL -> %s\n", ft_strcpy(buffer, NULL));
-	printf("\n");
+	printf(CYAN"------------Testing read-----------\n"RESET);
+	read_test_openfd("This goes to a fd");
+	read_test_badfd();
+	read_test_stdin();
 
-	printf("\n_____write_____\n\n");
-	WRITE("toto", 4L);
-	WRITE("totototo", 4L);
-	WRITE("totototo", 8L);
-	WRITE("toto", 2L);
-	printf("\n");
+	printf(CYAN"------------Testing strdup, source on stack-----------\n"RESET);
+	strdup_test("");
+	strdup_test("hello");
+	strdup_test("trud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.trud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.");
 
-	printf("\n_____read (Makefile)_____\n\n");
-	READ(buffer, 50);
-	i = 0;
-	while (i < 100)
-		buffer[i++] = 0;
-	READ(buffer, 25);
-	i = 0;
-	while (i < 100)
-		buffer[i++] = 0;
-	READ(buffer, 4);
-	i = 0;
-	while (i < 100)
-		buffer[i++] = 0;
-	READ(buffer, 26);
-	i = 0;
-	while (i < 100)
-		buffer[i++] = 0;
-	READ(buffer, 14);
-	i = 0;
-	while (i < 100)
-		buffer[i++] = 0;
-	READ(buffer, 0);
-	printf("\n");
-
-	printf("\n_____ft_strdup_____\n\n");
-	tmp2 = ft_strdup("toto");
-	DUP(tmp2);
-	free(tmp2);
-	DUP("totobar");
-	DUP("long message");
-	DUP("");
-	DUP(null_char);
-	printf("\n\n____________________all done :)____________________\n\n");
-	return (0);
+	printf(CYAN"------------Testing strdup, source on heap-----------\n"RESET);
+	strdup_heap_test("hello");
+	strdup_heap_test("trud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequattempor incididunt ut labore aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.");
+	strdup_heap_test("");
+	strdup_heap_test("a");
 }

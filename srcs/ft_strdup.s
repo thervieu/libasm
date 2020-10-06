@@ -6,34 +6,35 @@
 #    By: user42 <user42@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/07 19:19:22 by thervieu          #+#    #+#              #
-#    Updated: 2020/10/03 17:24:39 by user42           ###   ########.fr        #
+#    Updated: 2020/10/06 22:52:57 by user42           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-section .text
-    extern _ft_strlen
-    extern _ft_strcpy
-    extern _malloc
-    global _ft_strdup
+    section .text
+    extern  ft_strlen
+    extern  ft_strcpy
+    extern  malloc
+    extern  __errno_location
+    global  ft_strdup
 
-_ft_strdup:
-    push rdi            ; save rdi_init
+ft_strdup:
+    push    rdi             ; save rdi_init
+    call    ft_strlen       ;
+    inc     rax             ; + 1 for \0
+    mov     rdi, rax        ; put len in rdi for malloc
+    call    malloc wrt ..plt
+    cmp     rax, 0          ; check error
+    je      _error          ; if error, handle error
+    pop     rdi             ;
+    mov     rsi, rdi
+    mov     rdi, rax
+    call    ft_strcpy
+    ret
 
-    cmp rdi, 0          ; if !rdi
-    je strdup_error     ; return
-    call _ft_strlen     ; get_length
-    inc rax             ; get \0
-
-    mov rdi, rax        ; rdi = length
-    call _malloc        ; malloc length
-    cmp rax, 0          ; if pb during malloc
-    je strdup_error     ; return
-
-    pop rsi             ; rsi = rdi_init
-    mov rdi, rax        ; rdi = length
-    call _ft_strcpy     ; cpy rdi into rsi
-    ret                 ; return
-
-strdup_error:
-    pop rdi             ; rdi = rdi_init
-    ret                 ;return
+_error:
+    neg     rax
+    mov     rdi, rax
+    call    __errno_location wrt ..plt
+    mov     [rax], rdi
+    mov     rax, 0
+    ret
