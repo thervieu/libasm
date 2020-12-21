@@ -4,7 +4,7 @@
     global  ft_write
 
 ft_write:
-    mov     rax, 1  ; write
+    mov     rax, 1  ; write = 1
     syscall             ; call system rax = write
     cmp     rax, 0
     jl      _error            ; if error jump to error
