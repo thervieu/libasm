@@ -1,42 +1,25 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    ft_strcmp.s                                        :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: thervieu <marvin@42.fr>                    +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2019/11/21 17:11:45 by thervieu          #+#    #+#              #
-#    Updated: 2019/11/21 17:11:47 by thervieu         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-	section .text
+section .text
 	global	ft_strcmp
 
-ft_strcmp:
-	push	rdx
-	push	rcx
-	xor 	rax, rax
-	xor 	rdx, rdx
+ft_strcmp:	; rsi = str1  rdi = str2  rax = return_value
+	xor 	rax, rax	; rax = 0
+	xor 	rdx, rdx	; rdx = 0
 
 cmp_loop:
-	mov		cl, byte [rsi + rdx]
-	cmp		byte [rdi + rdx], cl
-	jl		lower
-	jg		greater
-	or		cl, cl
-	jz		end
-	inc		rdx
-	jmp		cmp_loop
+	mov		cl, byte [rsi + rdx]	; cl = char *tmp used because we cant compare
+	cmp		byte [rdi + rdx], cl	; two byte []
+	jl		lower					; jl = jump if lower
+	jg		greater					; jg = jump if greater
+	jz		end						; jz = jump if null
+	inc		rdx						; inc = increment
+	jmp		cmp_loop				; while loop
 
 lower:
-	mov		rax, -1
-	jmp end
+	mov		rax, -1					; rax = -1
+	jmp end	
 	
 greater:
-	mov		rax, 1
+	mov		rax, 1					; rax = 1
 
 end:
-	pop 	rdx
-	pop		rcx
 	ret
