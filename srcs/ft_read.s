@@ -1,7 +1,7 @@
 section .text
 
-	extern __errno_location
-    global ft_read
+	extern	__errno_location
+    global	ft_read
 
 ft_read:				; fd = rdi, buffer = rsi, bytes = rdx
 	mov		rax, 0		; put read in rax
@@ -11,6 +11,9 @@ ft_read:				; fd = rdi, buffer = rsi, bytes = rdx
 	ret					; else return
 
 _error:
-	call 	__errno_location	wrt ..plt
-	mov 	rax, -1		; since there is an error we return -1
-	ret					; return (-1)
+    neg rax
+    mov rdi, rax		; put positive error_value in rdi for ernno call
+	call	__errno_location wrt ..plt
+    mov [rax], rdi		; put return_value of errno in pointer on rax to get error_msg
+	mov		rax, -1		; return -1
+	ret

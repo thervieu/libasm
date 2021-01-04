@@ -6,7 +6,7 @@
 #    By: user42 <user42@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/07 19:29:40 by thervieu          #+#    #+#              #
-#    Updated: 2020/10/06 22:55:06 by user42           ###   ########.fr        #
+#    Updated: 2021/01/04 11:45:15 by user42           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ NA_FLAGS	=	-f elf64
 
 CC			=	clang
 
-CC_FLAGS	=	-Wall -Werror -Wextra -g \
+CC_FLAGS	=	-Wall -Werror -Wextra \
 				-L. -lasm
 
 HEADER		= ./incs
@@ -49,13 +49,17 @@ $(NAME):	$(OBJS)
 test:		$(NAME)
 			gcc -I $(HEADER) ./main.c libasm.a -o $@
 
+run: test
+	@./test
+
 clean:
 	@echo "Remove .o  ..."
 	@/bin/rm -f $(OBJS) 
 
 fclean: clean
+	@echo "Remove test_files ..."
 	@echo "Remove test ..."
 	@echo "Remove libasm.a ..."
-	@/bin/rm -f $(NAME) $(TEST)
+	@/bin/rm -f $(NAME) $(TEST) readfile writefile_1 writefile_2
 
 re: fclean all
