@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/09 12:13:54 by gozsertt          #+#    #+#             */
-/*   Updated: 2021/01/04 11:45:33 by user42           ###   ########.fr       */
+/*   Updated: 2021/01/05 13:23:25 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -251,6 +251,7 @@ int main()
 	strcmp_test("", "hello");
 	strcmp_test("wonderful world", "");
 	strcmp_test("bonjour", "au revoir");
+	strcmp_test("debut mince", "debut");
 	strcmp_test("identiques", "identiques");
 	strcmp_test("testtesttesttesttesttesttesttesttesttesttesttest", "testtesttesttesttesttesttesttesttesttesttesttest");
 

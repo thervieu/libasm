@@ -10,6 +10,7 @@ cmp_loop:
 	cmp		byte [rdi + rdx], cl	; two byte []
 	jl		lower					; jl = jump if lower
 	jg		greater					; jg = jump if greater
+	cmp		cl, 0					; if rsi[rdx] == 0
 	jz		end						; jz = jump if null
 	inc		rdx						; inc = increment
 	jmp		cmp_loop				; while loop
