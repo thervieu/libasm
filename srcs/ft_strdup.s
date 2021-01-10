@@ -20,9 +20,4 @@ ft_strdup:
 	ret
 
 _error:
-    neg rax
-    mov rdi, rax		; put positive error_value in rdi for ernno call
-	call	__errno_location wrt ..plt
-    mov [rax], rdi		; put return_value of errno in pointer on rax to get error_msg
-	mov		rax, -1		; return -1
 	ret
