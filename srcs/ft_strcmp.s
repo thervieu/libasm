@@ -6,8 +6,8 @@ ft_strcmp:	; rsi = str1  rdi = str2  rax = return_value
 	xor 	rdx, rdx	; rdx = 0
 
 cmp_loop:
-	mov 	cl, byte [rsi + rdx]
-	mov		al, byte [rdi + rdx]	; cl = char *tmp used because we cant compare
+	mov 	cl, BYTE [rsi + rdx]
+	mov		al, BYTE [rdi + rdx]	; cl = char *tmp used because we cant compare
 	cmp		cl, al					; two byte []
 	jl		diff					; jl = jump if lower
 	jg		diff					; jg = jump if greater
